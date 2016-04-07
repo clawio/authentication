@@ -25,7 +25,8 @@ type (
 		AuthenticationController *AuthenticationControllerConfig
 	}
 
-	// AuthenticationController represents the configuration for this Auth server
+	// AuthenticationControllerConfig holds the configuration for
+	// an AuthenticationController.
 	AuthenticationControllerConfig struct {
 		Type                   string
 		SimpleDriver           string

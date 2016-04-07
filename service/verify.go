@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Verify verifies an user token and returns the details about the user if the token is valid.
 func (s *Service) Verify(w http.ResponseWriter, r *http.Request) {
 	user, err := s.AuthenticationController.Verify(mux.Vars(r)["token"])
 	if err != nil {

@@ -20,11 +20,15 @@ type simpleAuthenticationController struct {
 	jwtSigningMethod string // the algo to sign the token
 }
 
+// SimpleAuthenticationControllerOptions  holds the configuration
+// parameters used by the SimpleAuthenticationController.
 type SimpleAuthenticationControllerOptions struct {
 	Driver, DSN              string
 	JWTKey, JWTSigningMethod string
 }
 
+// NewSimpleAuthenticationController returns an AuthenticationControler that uses a SQL database for handling
+// users and JWT for tokens.
 func NewSimpleAuthenticationController(opts *SimpleAuthenticationControllerOptions) (AuthenticationController, error) {
 	db, err := gorm.Open(opts.Driver, opts.DSN)
 	if err != nil {

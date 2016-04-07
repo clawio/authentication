@@ -8,15 +8,19 @@ import (
 )
 
 type (
+	// AuthenticateRequest specifies the data received by the Authenticate endpoint.
 	AuthenticateRequest struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
+
+	// AuthenticateResponse specifies the data returned from the Authenticate endpoint.
 	AuthenticateResponse struct {
 		Token string `json:"token"`
 	}
 )
 
+// Authenticate authenticates an user using an username and a password.
 func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
