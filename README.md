@@ -1,6 +1,13 @@
 # authentication
 ClawIO Authentication Service
 
+It contains 3 components:
+
+| [authenticationcontroller](authenticationcontroller)  | [service](service)       | [server](server)       |
+| ------------------------- | ------------- | -------------|
+| [![Go Report Card](https://goreportcard.com/badge/github.com/clawio/authentication/authenticationcontroller)](https://goreportcard.com/report/github.com/clawio/authentication/authenticationcontroller)  | [![Go Report Card](https://goreportcard.com/badge/github.com/clawio/authentication/service)](https://goreportcard.com/report/github.com/clawio/authentication/authenticationcontroller) | [![Go Report Card](https://goreportcard.com/badge/github.com/clawio/authentication/authenticationcontroller)](https://goreportcard.com/report/github.com/clawio/authentication/server) |
+
+
 This service exposes the following HTTP/2 endpoints:
 
 ## Authenticate 
