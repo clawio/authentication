@@ -1,6 +1,10 @@
 # authentication
 ClawIO Authentication Service
 
+| Build |
+|-------|
+| [![Build Status](https://drone.io/github.com/clawio/authentication/status.png)](https://drone.io/github.com/clawio/authentication/latest) |
+
 It contains 3 components:
 
 | [authenticationcontroller](authenticationcontroller)  | [service](service)       | [server](server)       |
