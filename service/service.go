@@ -77,15 +77,15 @@ func (s *Service) Middleware(h http.Handler) http.Handler {
 // Endpoints is a listing of all endpoints available in the MixedService.
 func (s *Service) Endpoints() map[string]map[string]http.HandlerFunc {
 	return map[string]map[string]http.HandlerFunc{
-		"/metrics": map[string]http.HandlerFunc{
+		"/metrics": {
 			"GET": func(w http.ResponseWriter, r *http.Request) {
 				prometheus.Handler().ServeHTTP(w, r)
 			},
 		},
-		"/authenticate": map[string]http.HandlerFunc{
+		"/authenticate": {
 			"POST": prometheus.InstrumentHandlerFunc("/authenticate", s.Authenticate),
 		},
-		"/verify/{token}": map[string]http.HandlerFunc{
+		"/verify/{token}": {
 			"GET": prometheus.InstrumentHandlerFunc("/verify", s.Verify),
 		},
 	}
