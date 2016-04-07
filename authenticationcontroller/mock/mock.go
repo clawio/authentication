@@ -5,20 +5,25 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockAuthenticationController struct {
+// AuthenticationController mocks an AuthenticationController for testing purposes.
+type AuthenticationController struct {
 	mock.Mock
 }
 
-func (m *MockAuthenticationController) Authenticate(username, password string) (string, error) {
+// Authenticate mocks the Authenticate call.
+func (m *AuthenticationController) Authenticate(username, password string) (string, error) {
 	args := m.Called()
 	return args.String(0), args.Error(1)
 }
 
-func (m *MockAuthenticationController) Verify(token string) (entities.User, error) {
+// Verify mocks the Verify call.
+func (m *AuthenticationController) Verify(token string) (entities.User, error) {
 	args := m.Called()
 	return args.Get(0).(entities.User), args.Error(1)
 }
-func (m *MockAuthenticationController) Invalidate(token string) error {
+
+// Invalidate mocks the Invalidate call.
+func (m *AuthenticationController) Invalidate(token string) error {
 	args := m.Called()
 	return args.Error(0)
 }

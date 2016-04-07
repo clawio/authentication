@@ -21,7 +21,7 @@ const (
 
 type TestSuite struct {
 	suite.Suite
-	MockAuthenticationController *mock_authenticationcontroller.MockAuthenticationController
+	MockAuthenticationController *mock_authenticationcontroller.AuthenticationController
 	Service                      *Service
 	Server                       *server.SimpleServer
 }
@@ -31,7 +31,7 @@ func Test(t *testing.T) {
 }
 
 func (suite *TestSuite) SetupTest() {
-	mockAuthenticationController := &mock_authenticationcontroller.MockAuthenticationController{}
+	mockAuthenticationController := &mock_authenticationcontroller.AuthenticationController{}
 
 	svc := &Service{}
 	svc.AuthenticationController = mockAuthenticationController
