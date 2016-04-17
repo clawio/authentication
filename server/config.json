@@ -19,8 +19,7 @@
 		"MemoryJWTKey": "secret",
 		"MemoryJWTSigningKey": "HS256",
 		"MemoryUsers": [
-			{"Username": "test", "Password":"test"},
-			{"Username": "hugo", "Password":"hugo"}
+			{"username": "test", "password":"test", "email": "test@test.com", "display_name":"Testing User"}
 		]
 	}
 }
