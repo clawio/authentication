@@ -10,4 +10,5 @@ When the user has provided a valid set of credentials (username and password), t
 
 Current implementations are as follows:
 
-* Simple: uses a SQLite3 database for persisting users and JWT for tokens.
+* Simple: uses a SQL database for persisting users and JWT for tokens.
+* Memory: stores users in memory. For testing purposes.
