@@ -1,10 +1,11 @@
-package authenticationcontroller
+package simple
 
 import (
 	"errors"
 	"os"
 	"time"
 
+	"github.com/clawio/authentication/authenticationcontroller"
 	"github.com/clawio/entities"
 	"github.com/dgrijalva/jwt-go"
 	_ "github.com/go-sql-driver/mysql" // enable mysql driver
@@ -13,23 +14,23 @@ import (
 	_ "github.com/mattn/go-sqlite3" // enable sqlite3 driver
 )
 
-type simpleAuthenticationController struct {
+type controller struct {
 	driver, dsn      string
 	db               *gorm.DB
 	jwtKey           string // the key to sign the token
 	jwtSigningMethod string // the algo to sign the token
 }
 
-// SimpleAuthenticationControllerOptions  holds the configuration
-// parameters used by the SimpleAuthenticationController.
-type SimpleAuthenticationControllerOptions struct {
+// Options  holds the configuration
+// parameters used by the controller.
+type Options struct {
 	Driver, DSN              string
 	JWTKey, JWTSigningMethod string
 }
 
-// NewSimpleAuthenticationController returns an AuthenticationControler that uses a SQL database for handling
+// New returns an AuthenticationControler that uses a SQL database for handling
 // users and JWT for tokens.
-func NewSimpleAuthenticationController(opts *SimpleAuthenticationControllerOptions) (AuthenticationController, error) {
+func New(opts *Options) (authenticationcontroller.AuthenticationController, error) {
 	db, err := gorm.Open(opts.Driver, opts.DSN)
 	if err != nil {
 		return nil, err
@@ -38,7 +39,7 @@ func NewSimpleAuthenticationController(opts *SimpleAuthenticationControllerOptio
 	if err != nil {
 		return nil, err
 	}
-	return &simpleAuthenticationController{
+	return &controller{
 		driver:           opts.Driver,
 		dsn:              opts.DSN,
 		db:               db,
@@ -47,7 +48,7 @@ func NewSimpleAuthenticationController(opts *SimpleAuthenticationControllerOptio
 	}, nil
 }
 
-func (c *simpleAuthenticationController) Authenticate(username, password string) (string, error) {
+func (c *controller) Authenticate(username, password string) (string, error) {
 	rec, err := c.findByCredentials(username, password)
 	if err != nil {
 		return "", err
@@ -56,7 +57,7 @@ func (c *simpleAuthenticationController) Authenticate(username, password string)
 }
 
 // Verify checks id token is valid and creates an user user from it.
-func (c *simpleAuthenticationController) Verify(token string) (entities.User, error) {
+func (c *controller) Verify(token string) (entities.User, error) {
 	t, err := c.parseToken(token)
 	if err != nil {
 		return nil, err
@@ -64,12 +65,12 @@ func (c *simpleAuthenticationController) Verify(token string) (entities.User, er
 	return c.createUserFromToken(t)
 }
 
-func (c *simpleAuthenticationController) Invalidate(token string) error {
+func (c *controller) Invalidate(token string) error {
 	return nil
 }
 
 // findByCredentials finds an user given an username and a password.
-func (c *simpleAuthenticationController) findByCredentials(username, password string) (*userRecord, error) {
+func (c *controller) findByCredentials(username, password string) (*userRecord, error) {
 	rec := &userRecord{}
 	err := c.db.Where("username=? AND password=?", username, password).First(rec).Error
 	return rec, err
@@ -91,7 +92,7 @@ func (u *userRecord) GetUsername() string    { return u.Username }
 func (u *userRecord) GetEmail() string       { return u.Email }
 func (u *userRecord) GetDisplayName() string { return u.DisplayName }
 
-func (c *simpleAuthenticationController) createToken(user entities.User) (string, error) {
+func (c *controller) createToken(user entities.User) (string, error) {
 	if user == nil {
 		return "", errors.New("user is nil")
 	}
@@ -105,13 +106,13 @@ func (c *simpleAuthenticationController) createToken(user entities.User) (string
 	return token.SignedString([]byte(c.jwtKey))
 }
 
-func (c *simpleAuthenticationController) parseToken(token string) (*jwt.Token, error) {
+func (c *controller) parseToken(token string) (*jwt.Token, error) {
 	return jwt.Parse(token, func(token *jwt.Token) (key interface{}, err error) {
 		return []byte(c.jwtKey), nil
 	})
 }
 
-func (c *simpleAuthenticationController) createUserFromToken(token *jwt.Token) (entities.User, error) {
+func (c *controller) createUserFromToken(token *jwt.Token) (entities.User, error) {
 	username, ok := token.Claims["username"].(string)
 	if !ok {
 		return nil, errors.New("token username claim failed cast to string")

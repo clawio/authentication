@@ -6,6 +6,8 @@ import (
 
 	"github.com/NYTimes/gizmo/config"
 	"github.com/clawio/authentication/authenticationcontroller"
+	"github.com/clawio/authentication/authenticationcontroller/memory"
+	"github.com/clawio/authentication/authenticationcontroller/simple"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -28,11 +30,16 @@ type (
 	// AuthenticationControllerConfig holds the configuration for
 	// an AuthenticationController.
 	AuthenticationControllerConfig struct {
-		Type                   string
+		Type string
+
 		SimpleDriver           string
 		SimpleDSN              string
 		SimpleJWTKey           string
 		SimpleJWTSigningMethod string
+
+		MemoryJWTKey           string
+		MemoryJWTSigningMethod string
+		MemoryUsers            []*memory.User
 	}
 )
 
@@ -45,20 +52,43 @@ func New(cfg *Config) (*Service, error) {
 	if cfg.AuthenticationController == nil {
 		return nil, errors.New("config.AuthenticationController is nil")
 	}
-	opts := &authenticationcontroller.SimpleAuthenticationControllerOptions{
+
+	var authenticationController authenticationcontroller.AuthenticationController
+	switch cfg.AuthenticationController.Type {
+	case "simple":
+		a, err := getSimpleAuthenticationController(cfg)
+		if err != nil {
+			return nil, err
+		}
+		authenticationController = a
+	case "memory":
+		authenticationController = getMemoryAuthenticationController(cfg)
+	default:
+		return nil, errors.New("authenticationController type " + cfg.AuthenticationController.Type + " does not exist")
+	}
+
+	return &Service{
+		Config: cfg,
+		AuthenticationController: authenticationController,
+	}, nil
+}
+
+func getSimpleAuthenticationController(cfg *Config) (authenticationcontroller.AuthenticationController, error) {
+	opts := &simple.Options{
 		Driver:           cfg.AuthenticationController.SimpleDriver,
 		DSN:              cfg.AuthenticationController.SimpleDSN,
 		JWTKey:           cfg.AuthenticationController.SimpleJWTKey,
 		JWTSigningMethod: cfg.AuthenticationController.SimpleJWTSigningMethod,
 	}
-	authenticationController, err := authenticationcontroller.NewSimpleAuthenticationController(opts)
-	if err != nil {
-		return nil, err
+	return simple.New(opts)
+}
+func getMemoryAuthenticationController(cfg *Config) authenticationcontroller.AuthenticationController {
+	opts := &memory.Options{
+		Users:            cfg.AuthenticationController.MemoryUsers,
+		JWTKey:           cfg.AuthenticationController.SimpleJWTKey,
+		JWTSigningMethod: cfg.AuthenticationController.SimpleJWTSigningMethod,
 	}
-	return &Service{
-		Config: cfg,
-		AuthenticationController: authenticationController,
-	}, nil
+	return memory.New(opts)
 }
 
 // Prefix returns the string prefix used for all endpoints within

@@ -9,10 +9,18 @@
 		"HealthCheckPath": "/health.txt"
 	},
 	"AuthenticationController": {
-		"Type": "simple",
+		"Type": "memory",
+
 		"SimpleDriver": "sqlite3",
 		"SimpleDSN": "/tmp/userstore.db",
 		"SimpleJWTKey": "secret",
-		"SimpleJWTSigningMethod": "HS256"
+		"SimpleJWTSigningMethod": "HS256",
+
+		"MemoryJWTKey": "secret",
+		"MemoryJWTSigningKey": "HS256",
+		"MemoryUsers": [
+			{"Username": "test", "Password":"test"},
+			{"Username": "hugo", "Password":"hugo"}
+		]
 	}
 }

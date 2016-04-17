@@ -46,7 +46,7 @@ func (suite *TestSuite) SetupTest() {
 	suite.Server = serv
 }
 
-func (suite *TestSuite) TestNew() {
+func (suite *TestSuite) TestNew_withSimple() {
 	authCfg := &AuthenticationControllerConfig{
 		Type:                   "simple",
 		SimpleDriver:           "sqlite3",
@@ -60,6 +60,29 @@ func (suite *TestSuite) TestNew() {
 	}
 	_, err := New(cfg)
 	require.Nil(suite.T(), err)
+}
+
+func (suite *TestSuite) TestNew_withMemory() {
+	authCfg := &AuthenticationControllerConfig{
+		Type: "memory",
+	}
+	cfg := &Config{
+		Server: nil,
+		AuthenticationController: authCfg,
+	}
+	_, err := New(cfg)
+	require.Nil(suite.T(), err)
+}
+func (suite *TestSuite) TestNew_withBadController() {
+	authCfg := &AuthenticationControllerConfig{
+		Type: "notfound",
+	}
+	cfg := &Config{
+		Server: nil,
+		AuthenticationController: authCfg,
+	}
+	_, err := New(cfg)
+	require.NotNil(suite.T(), err)
 }
 func (suite *TestSuite) TestNew_withNilConfig() {
 	_, err := New(nil)
