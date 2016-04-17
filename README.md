@@ -1,50 +1,13 @@
-# authentication
-ClawIO Authentication Service
+[![Build Status](https://drone.io/github.com/clawio/authentication/status.png)](https://drone.io/github.com/clawio/authentication/latest)
+[![GoDoc](https://godoc.org/github.com/clawio/authentication?status.svg)](https://godoc.org/github.com/clawio/authentication)
+[![Go Report Card](https://goreportcard.com/badge/github.com/clawio/authentication)](https://goreportcard.com/report/github.com/clawio/authentication)
+[![codecov.io](https://codecov.io/github/clawio/authentication/coverage.svg?branch=master)](https://codecov.io/github/clawio/authentication?branch=master)
 
-This service exposes the following HTTP/2 endpoints:
+This repository contains the ClawIO Authentication Service.
 
-## Authenticate 
+This service authenticate users for using other services that require the user to be authenticated.
+When the user has provided a valid set of credentials (username and password), the service returns an authentication token to be used in future requests.
 
-### Request
+Current implementations are as follows:
 
-```
-GET http://localhost:58001/clawio/v1/auth/verify/<token>
-```
-
-### Response
-
-HTTP Status Code: 200
-
-```
-{
-	"username": "test",
-	"email": "test@test.com",
-	"display_name": "tester"
-}
-```
-
-## Authenticate 
-
-### Request
-
-```
-POST http://localhost:58001/clawio/v1/auth/authenticate
-```
-Body:
-
-```
-{
-	"username": "test",
-	"password": "testpwd"
-}
-```
-
-### Response
-
-HTTP Status Code: 200
-
-```
-{
-	"token": "testoken"
-}
-```
+* Simple: uses a SQLite3 database for persisting users and JWT for tokens.
