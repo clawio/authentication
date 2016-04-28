@@ -1,7 +1,8 @@
 [![Build Status](https://travis-ci.org/clawio/authentication.svg?branch=master)](https://travis-ci.org/clawio/authentication)
 [![GoDoc](https://godoc.org/github.com/clawio/authentication?status.svg)](https://godoc.org/github.com/clawio/authentication)
 [![Go Report Card](https://goreportcard.com/badge/github.com/clawio/authentication)](https://goreportcard.com/report/github.com/clawio/authentication)
-[![codecov.io](https://codecov.io/github/clawio/authentication/coverage.svg?branch=master)](https://codecov.io/github/clawio/authentication?branch=master)
+[![codecov](https://codecov.io/gh/clawio/authentication/branch/master/graph/badge.svg)](https://codecov.io/gh/clawio/authentication)
+
 
 This repository contains the ClawIO Authentication Service.
 
