@@ -2,6 +2,6 @@ comment:
   layout: header, changes, diff
 coverage:
   ignore:
-  - server/
-  - authenticationcontroller/mock/
+  - server/*
+  - authenticationcontroller/mock/*
   status: {}
