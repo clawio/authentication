@@ -24,7 +24,14 @@ type (
 	// configuration for our Service
 	Config struct {
 		Server                   *config.Server
+		General                  *GeneralConfig
 		AuthenticationController *AuthenticationControllerConfig
+	}
+
+	// GeneralConfig contains configuration parameters
+	// for general parts of the service.
+	GeneralConfig struct {
+		BaseURL string
 	}
 
 	// AuthenticationControllerConfig holds the configuration for
@@ -51,6 +58,9 @@ func New(cfg *Config) (*Service, error) {
 	}
 	if cfg.AuthenticationController == nil {
 		return nil, errors.New("config.AuthenticationController is nil")
+	}
+	if cfg.General == nil {
+		return nil, errors.New("config.General is nil")
 	}
 
 	var authenticationController authenticationcontroller.AuthenticationController
@@ -94,7 +104,7 @@ func getMemoryAuthenticationController(cfg *Config) authenticationcontroller.Aut
 // Prefix returns the string prefix used for all endpoints within
 // this service.
 func (s *Service) Prefix() string {
-	return "/clawio/v1/auth"
+	return s.Config.General.BaseURL
 }
 
 // Middleware provides an http.Handler hook wrapped around all requests.

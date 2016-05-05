@@ -3,6 +3,7 @@ package service
 import (
 	"net/http"
 	"net/http/httptest"
+	"path"
 	"testing"
 
 	"github.com/NYTimes/gizmo/config"
@@ -12,11 +13,10 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-const (
-	baseURL         = "/clawio/v1/auth/"
-	authenticateURL = baseURL + "authenticate"
-	verifyURL       = baseURL + "verify/"
-	metricsURL      = baseURL + "metrics"
+var (
+	authenticateURL string
+	verifyURL       string
+	metricsURL      string
 )
 
 type TestSuite struct {
@@ -35,15 +35,24 @@ func (suite *TestSuite) SetupTest() {
 
 	svc := &Service{}
 	svc.AuthenticationController = mockAuthenticationController
+	cfg := &Config{
+		General: &GeneralConfig{BaseURL: "/"},
+	}
+	svc.Config = cfg
 
 	suite.Service = svc
 	suite.MockAuthenticationController = mockAuthenticationController
 
-	cfg := &config.Server{}
+	serverCfg := &config.Server{}
 
-	serv := server.NewSimpleServer(cfg)
+	serv := server.NewSimpleServer(serverCfg)
 	serv.Register(suite.Service)
 	suite.Server = serv
+
+	// set testing urls
+	authenticateURL = path.Join(svc.Config.General.BaseURL, "/authenticate")
+	verifyURL = path.Join(svc.Config.General.BaseURL, "/verify")
+	metricsURL = path.Join(svc.Config.General.BaseURL, "/metrics")
 }
 
 func (suite *TestSuite) TestNew_withSimple() {
@@ -55,7 +64,7 @@ func (suite *TestSuite) TestNew_withSimple() {
 		SimpleJWTSigningMethod: "HS256",
 	}
 	cfg := &Config{
-		Server: nil,
+		General:                  &GeneralConfig{},
 		AuthenticationController: authCfg,
 	}
 	_, err := New(cfg)
@@ -67,7 +76,7 @@ func (suite *TestSuite) TestNew_withMemory() {
 		Type: "memory",
 	}
 	cfg := &Config{
-		Server: nil,
+		General:                  &GeneralConfig{},
 		AuthenticationController: authCfg,
 	}
 	_, err := New(cfg)
@@ -78,7 +87,7 @@ func (suite *TestSuite) TestNew_withBadController() {
 		Type: "notfound",
 	}
 	cfg := &Config{
-		Server: nil,
+		General:                  &GeneralConfig{},
 		AuthenticationController: authCfg,
 	}
 	_, err := New(cfg)
@@ -86,6 +95,13 @@ func (suite *TestSuite) TestNew_withBadController() {
 }
 func (suite *TestSuite) TestNew_withNilConfig() {
 	_, err := New(nil)
+	require.NotNil(suite.T(), err)
+}
+func (suite *TestSuite) TestNew_withNilGeneralConfig() {
+	cfg := &Config{
+		General: &GeneralConfig{},
+	}
+	_, err := New(cfg)
 	require.NotNil(suite.T(), err)
 }
 func (suite *TestSuite) TestNew_withNilAuthenticationControllerConfig() {

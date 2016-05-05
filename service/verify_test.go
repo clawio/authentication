@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"path"
 
 	"github.com/clawio/entities/mocks"
 	"github.com/stretchr/testify/require"
@@ -13,7 +14,7 @@ import (
 func (suite *TestSuite) TestVerify() {
 	testUser := &mocks.MockUser{Username: "test", Email: "test@test.com", DisplayName: "Tester"}
 	suite.MockAuthenticationController.On("Verify").Once().Return(testUser, nil)
-	r, err := http.NewRequest("GET", verifyURL+"testoken", nil)
+	r, err := http.NewRequest("GET", path.Join(verifyURL, "testoken"), nil)
 	require.Nil(suite.T(), err)
 	w := httptest.NewRecorder()
 	suite.Server.ServeHTTP(w, r)
@@ -25,7 +26,7 @@ func (suite *TestSuite) TestVerify() {
 }
 func (suite *TestSuite) TestVerify_witAuthenticationControllerError() {
 	suite.MockAuthenticationController.On("Verify").Once().Return(&mocks.MockUser{}, errors.New("test error"))
-	r, err := http.NewRequest("GET", verifyURL+"testoken", nil)
+	r, err := http.NewRequest("GET", path.Join(verifyURL, "testoken"), nil)
 	require.Nil(suite.T(), err)
 	w := httptest.NewRecorder()
 	suite.Server.ServeHTTP(w, r)
