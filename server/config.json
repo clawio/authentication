@@ -8,6 +8,9 @@
 		"HealthCheckType": "simple",
 		"HealthCheckPath": "/health.txt"
 	},
+	"General": {
+		"BaseURL": "/clawio/v1/auth/"
+	}, 
 	"AuthenticationController": {
 		"Type": "memory",
 
