@@ -2,9 +2,14 @@ package lib
 
 import (
 	"errors"
-	"github.com/clawio/entities"
-	"github.com/dgrijalva/jwt-go"
+	"net/http"
+	"strings"
 	"time"
+
+	"github.com/clawio/entities"
+	"github.com/clawio/keys"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/context"
 )
 
 const DefaultJWTKey = "secret"
@@ -70,4 +75,38 @@ func (a *Authenticator) parseToken(token string) (*jwt.Token, error) {
 	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.JWTKey), nil
 	})
+}
+
+func (a *Authenticator) getTokenFromRequest(r *http.Request) string {
+	if t := a.getTokenFromHeader(r); t != "" {
+		return t
+	}
+	return a.getTokenFromQuery(r)
+}
+func (a *Authenticator) getTokenFromQuery(r *http.Request) string {
+	return r.URL.Query().Get("access_token")
+}
+func (a *Authenticator) getTokenFromHeader(r *http.Request) string {
+	header := r.Header.Get("Authorization")
+	parts := strings.Split(header, " ")
+	if len(parts) < 2 {
+		return ""
+	}
+	if strings.ToLower(parts[0]) != "bearer" {
+		return ""
+	}
+	return parts[1]
+}
+
+func (a *Authenticator) JWTHandlerFunc(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token := a.getTokenFromRequest(r)
+		user, err := a.CreateUserFromToken(token)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			return
+		}
+		context.Set(r, keys.UserKey, user)
+		handler(w, r)
+	}
 }
