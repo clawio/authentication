@@ -10,7 +10,7 @@ func main() {
 	var cfg *service.Config
 	config.LoadJSONFile("./config.json", &cfg)
 
-	server.Init("service-auth", cfg.Server)
+	server.Init("Authentication Service", cfg.Server)
 	svc, err := service.New(cfg)
 	if err != nil {
 		server.Log.Fatal("unable to create service: ", err)
