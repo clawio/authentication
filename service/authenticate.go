@@ -16,7 +16,7 @@ type (
 
 	// AuthenticateResponse specifies the data returned from the Authenticate endpoint.
 	AuthenticateResponse struct {
-		Token string `json:"token"`
+		AccessToken string `json:"access_token"`
 	}
 )
 
@@ -38,7 +38,7 @@ func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request) {
 		s.handleAuthenticateError(err, w)
 		return
 	}
-	res := &AuthenticateResponse{Token: token}
+	res := &AuthenticateResponse{AccessToken: token}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
 }
