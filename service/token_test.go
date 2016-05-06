@@ -13,7 +13,7 @@ import (
 func (suite *TestSuite) TestAuthenticate() {
 	suite.MockAuthenticationController.On("Authenticate").Once().Return("testtoken", nil)
 	body := strings.NewReader(`{"username":"test", "password":"test"}`)
-	r, err := http.NewRequest("POST", authenticateURL, body)
+	r, err := http.NewRequest("POST", tokenURL, body)
 	require.Nil(suite.T(), err)
 	w := httptest.NewRecorder()
 	suite.Server.ServeHTTP(w, r)
@@ -21,10 +21,10 @@ func (suite *TestSuite) TestAuthenticate() {
 	authNRes := &AuthenticateResponse{}
 	err = json.NewDecoder(w.Body).Decode(authNRes)
 	require.Nil(suite.T(), err)
-	require.Equal(suite.T(), "testtoken", authNRes.Token)
+	require.Equal(suite.T(), "testtoken", authNRes.AccessToken)
 }
 func (suite *TestSuite) TestAuthenticate_withNilBody() {
-	r, err := http.NewRequest("POST", authenticateURL, nil)
+	r, err := http.NewRequest("POST", tokenURL, nil)
 	require.Nil(suite.T(), err)
 	w := httptest.NewRecorder()
 	suite.Server.ServeHTTP(w, r)
@@ -32,7 +32,7 @@ func (suite *TestSuite) TestAuthenticate_withNilBody() {
 }
 func (suite *TestSuite) TestAuthenticate_withInvalidJSON() {
 	body := strings.NewReader("")
-	r, err := http.NewRequest("POST", authenticateURL, body)
+	r, err := http.NewRequest("POST", tokenURL, body)
 	require.Nil(suite.T(), err)
 	w := httptest.NewRecorder()
 	suite.Server.ServeHTTP(w, r)
@@ -41,7 +41,7 @@ func (suite *TestSuite) TestAuthenticate_withInvalidJSON() {
 func (suite *TestSuite) TestAuthenticate_withAuthenticationControllerError() {
 	suite.MockAuthenticationController.On("Authenticate").Once().Return("", errors.New("test error"))
 	body := strings.NewReader(`{"username":"test", "password":"test"}`)
-	r, err := http.NewRequest("POST", authenticateURL, body)
+	r, err := http.NewRequest("POST", tokenURL, body)
 	require.Nil(suite.T(), err)
 	w := httptest.NewRecorder()
 	suite.Server.ServeHTTP(w, r)

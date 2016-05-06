@@ -14,9 +14,8 @@ import (
 )
 
 var (
-	authenticateURL string
-	verifyURL       string
-	metricsURL      string
+	tokenURL   string
+	metricsURL string
 )
 
 type TestSuite struct {
@@ -50,9 +49,9 @@ func (suite *TestSuite) SetupTest() {
 	suite.Server = serv
 
 	// set testing urls
-	authenticateURL = path.Join(svc.Config.General.BaseURL, "/authenticate")
-	verifyURL = path.Join(svc.Config.General.BaseURL, "/verify")
+	tokenURL = path.Join(svc.Config.General.BaseURL, "/token")
 	metricsURL = path.Join(svc.Config.General.BaseURL, "/metrics")
+
 }
 
 func (suite *TestSuite) TestNew_withSimple() {

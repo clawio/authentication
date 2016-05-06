@@ -21,7 +21,7 @@ type (
 )
 
 // Authenticate authenticates an user using an username and a password.
-func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request) {
+func (s *Service) Token(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -35,7 +35,7 @@ func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 	token, err := s.AuthenticationController.Authenticate(authReq.Username, authReq.Password)
 	if err != nil {
-		s.handleAuthenticateError(err, w)
+		s.handleTokenError(err, w)
 		return
 	}
 	res := &AuthenticateResponse{AccessToken: token}
@@ -43,7 +43,7 @@ func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func (s *Service) handleAuthenticateError(err error, w http.ResponseWriter) {
+func (s *Service) handleTokenError(err error, w http.ResponseWriter) {
 	e := codes.NewErr(codes.BadInputData, "user or password do not match")
 	w.WriteHeader(http.StatusBadRequest)
 	json.NewEncoder(w).Encode(e)

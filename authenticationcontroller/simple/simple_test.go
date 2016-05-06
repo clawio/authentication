@@ -66,69 +66,10 @@ func (suite *TestSuite) TestfindByCredentials() {
 	require.Nil(suite.T(), err)
 	user, err := suite.controller.findByCredentials("testFindByCredentials", "testpwd")
 	require.Nil(suite.T(), err)
-	require.Equal(suite.T(), "testFindByCredentials", user.GetUsername())
+	require.Equal(suite.T(), "testFindByCredentials", user.Username)
 }
 func (suite *TestSuite) TestfindByCredentials_withBadUser() {
 	_, err := suite.controller.findByCredentials("", "")
-	require.NotNil(suite.T(), err)
-}
-func (suite *TestSuite) TestcreateToken() {
-	user := &userRecord{}
-	_, err := suite.controller.createToken(user)
-	require.Nil(suite.T(), err)
-}
-func (suite *TestSuite) TestcreateToken_withNilUser() {
-	_, err := suite.controller.createToken(nil)
-	require.NotNil(suite.T(), err)
-}
-func (suite *TestSuite) TestparseToken_withBadToken() {
-	_, err := suite.controller.parseToken("")
-	require.NotNil(suite.T(), err)
-}
-func (suite *TestSuite) TestparseToken() {
-	user := &userRecord{}
-	token, err := suite.controller.createToken(user)
-	require.Nil(suite.T(), err)
-	_, err = suite.controller.parseToken(token)
-	require.Nil(suite.T(), err)
-}
-func (suite *TestSuite) TestcreateUserFromToken() {
-	user := &userRecord{}
-	token, err := suite.controller.createToken(user)
-	require.Nil(suite.T(), err)
-	jwtToken, err := suite.controller.parseToken(token)
-	require.Nil(suite.T(), err)
-	_, err = suite.controller.createUserFromToken(jwtToken)
-	require.Nil(suite.T(), err)
-}
-func (suite *TestSuite) TestcreateUserFromToken_withBadUsername() {
-	user := &userRecord{}
-	token, err := suite.controller.createToken(user)
-	require.Nil(suite.T(), err)
-	jwtToken, err := suite.controller.parseToken(token)
-	require.Nil(suite.T(), err)
-	jwtToken.Claims["username"] = 0
-	_, err = suite.controller.createUserFromToken(jwtToken)
-	require.NotNil(suite.T(), err)
-}
-func (suite *TestSuite) TestcreateUserFromToken_withBadEmail() {
-	user := &userRecord{}
-	token, err := suite.controller.createToken(user)
-	require.Nil(suite.T(), err)
-	jwtToken, err := suite.controller.parseToken(token)
-	require.Nil(suite.T(), err)
-	jwtToken.Claims["email"] = 0
-	_, err = suite.controller.createUserFromToken(jwtToken)
-	require.NotNil(suite.T(), err)
-}
-func (suite *TestSuite) TestcreateUserFromToken_withBadDisplayName() {
-	user := &userRecord{}
-	token, err := suite.controller.createToken(user)
-	require.Nil(suite.T(), err)
-	jwtToken, err := suite.controller.parseToken(token)
-	require.Nil(suite.T(), err)
-	jwtToken.Claims["display_name"] = 0
-	_, err = suite.controller.createUserFromToken(jwtToken)
 	require.NotNil(suite.T(), err)
 }
 func (suite *TestSuite) TestAuthenticate() {
@@ -144,21 +85,5 @@ func (suite *TestSuite) TestAuthenticate() {
 }
 func (suite *TestSuite) TestAuthenticate_withBadUser() {
 	_, err := suite.controller.Authenticate("", "")
-	require.NotNil(suite.T(), err)
-}
-func (suite *TestSuite) TestInvalidate() {
-	err := suite.controller.Invalidate("")
-	require.Nil(suite.T(), err)
-}
-func (suite *TestSuite) TestVerifyToken() {
-	user := &userRecord{Username: "test"}
-	token, err := suite.controller.createToken(user)
-	require.Nil(suite.T(), err)
-	givenUser, err := suite.controller.Verify(token)
-	require.Nil(suite.T(), err)
-	require.Equal(suite.T(), user.GetUsername(), givenUser.GetUsername())
-}
-func (suite *TestSuite) TestVerify_withBadToken() {
-	_, err := suite.controller.Verify("")
 	require.NotNil(suite.T(), err)
 }

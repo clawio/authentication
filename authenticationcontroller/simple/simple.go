@@ -1,13 +1,9 @@
 package simple
 
 import (
-	"errors"
-	"os"
-	"time"
-
 	"github.com/clawio/authentication/authenticationcontroller"
+	"github.com/clawio/authentication/lib"
 	"github.com/clawio/entities"
-	"github.com/dgrijalva/jwt-go"
 	_ "github.com/go-sql-driver/mysql" // enable mysql driver
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"           // enable postgresql driver
@@ -15,10 +11,9 @@ import (
 )
 
 type controller struct {
-	driver, dsn      string
-	db               *gorm.DB
-	jwtKey           string // the key to sign the token
-	jwtSigningMethod string // the algo to sign the token
+	driver, dsn   string
+	db            *gorm.DB
+	authenticator *lib.Authenticator
 }
 
 // Options  holds the configuration
@@ -39,12 +34,12 @@ func New(opts *Options) (authenticationcontroller.AuthenticationController, erro
 	if err != nil {
 		return nil, err
 	}
+
 	return &controller{
-		driver:           opts.Driver,
-		dsn:              opts.DSN,
-		db:               db,
-		jwtKey:           opts.JWTKey,
-		jwtSigningMethod: opts.JWTSigningMethod,
+		driver:        opts.Driver,
+		dsn:           opts.DSN,
+		db:            db,
+		authenticator: lib.NewAuthenticator(opts.JWTKey, opts.JWTSigningMethod),
 	}, nil
 }
 
@@ -53,20 +48,12 @@ func (c *controller) Authenticate(username, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return c.createToken(rec)
-}
-
-// Verify checks id token is valid and creates an user user from it.
-func (c *controller) Verify(token string) (entities.User, error) {
-	t, err := c.parseToken(token)
-	if err != nil {
-		return nil, err
+	u := &entities.User{
+		Username:    rec.Username,
+		Email:       rec.Email,
+		DisplayName: rec.DisplayName,
 	}
-	return c.createUserFromToken(t)
-}
-
-func (c *controller) Invalidate(token string) error {
-	return nil
+	return c.authenticator.CreateToken(u)
 }
 
 // findByCredentials finds an user given an username and a password.
@@ -78,59 +65,12 @@ func (c *controller) findByCredentials(username, password string) (*userRecord, 
 
 // TODO(labkode) set collation for table and column to utf8. The default is swedish
 type userRecord struct {
-	Username    string `gorm:"primary_key" json:"username"`
-	Email       string `json:"email"`
-	DisplayName string `json:"display_name"`
-	Password    string `json:"-"`
+	Username    string `gorm:"primary_key"`
+	Email       string
+	DisplayName string
+	Password    string
 }
 
 func (u userRecord) TableName() string {
 	return "users"
-}
-
-func (u *userRecord) GetUsername() string    { return u.Username }
-func (u *userRecord) GetEmail() string       { return u.Email }
-func (u *userRecord) GetDisplayName() string { return u.DisplayName }
-
-func (c *controller) createToken(user entities.User) (string, error) {
-	if user == nil {
-		return "", errors.New("user is nil")
-	}
-	token := jwt.New(jwt.GetSigningMethod(c.jwtSigningMethod))
-	host, _ := os.Hostname()
-	token.Claims["username"] = user.GetUsername()
-	token.Claims["email"] = user.GetEmail()
-	token.Claims["display_name"] = user.GetDisplayName()
-	token.Claims["iss"] = host
-	token.Claims["exp"] = time.Now().Add(time.Second * 3600).UnixNano()
-	return token.SignedString([]byte(c.jwtKey))
-}
-
-func (c *controller) parseToken(token string) (*jwt.Token, error) {
-	return jwt.Parse(token, func(token *jwt.Token) (key interface{}, err error) {
-		return []byte(c.jwtKey), nil
-	})
-}
-
-func (c *controller) createUserFromToken(token *jwt.Token) (entities.User, error) {
-	username, ok := token.Claims["username"].(string)
-	if !ok {
-		return nil, errors.New("token username claim failed cast to string")
-	}
-
-	email, ok := token.Claims["email"].(string)
-	if !ok {
-		return nil, errors.New("token email claim failed cast to string")
-	}
-
-	displayName, ok := token.Claims["display_name"].(string)
-	if !ok {
-		return nil, errors.New("token display_name claim failed cast to string")
-	}
-
-	return &userRecord{
-		Username:    username,
-		Email:       email,
-		DisplayName: displayName,
-	}, nil
 }

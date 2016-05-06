@@ -95,8 +95,8 @@ func getSimpleAuthenticationController(cfg *Config) (authenticationcontroller.Au
 func getMemoryAuthenticationController(cfg *Config) authenticationcontroller.AuthenticationController {
 	opts := &memory.Options{
 		Users:            cfg.AuthenticationController.MemoryUsers,
-		JWTKey:           cfg.AuthenticationController.SimpleJWTKey,
-		JWTSigningMethod: cfg.AuthenticationController.SimpleJWTSigningMethod,
+		JWTKey:           cfg.AuthenticationController.MemoryJWTKey,
+		JWTSigningMethod: cfg.AuthenticationController.MemoryJWTSigningMethod,
 	}
 	return memory.New(opts)
 }
@@ -108,8 +108,6 @@ func (s *Service) Prefix() string {
 }
 
 // Middleware provides an http.Handler hook wrapped around all requests.
-// In this implementation, we're using a GzipHandler middleware to
-// compress our responses.
 func (s *Service) Middleware(h http.Handler) http.Handler {
 	return h
 }
@@ -122,11 +120,8 @@ func (s *Service) Endpoints() map[string]map[string]http.HandlerFunc {
 				prometheus.Handler().ServeHTTP(w, r)
 			},
 		},
-		"/authenticate": {
-			"POST": prometheus.InstrumentHandlerFunc("/authenticate", s.Authenticate),
-		},
-		"/verify/{token}": {
-			"GET": prometheus.InstrumentHandlerFunc("/verify", s.Verify),
+		"/token": {
+			"POST": prometheus.InstrumentHandlerFunc("/token", s.Token),
 		},
 	}
 }
