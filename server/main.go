@@ -1,16 +1,18 @@
 package main
 
 import (
+	"flag"
 	"github.com/NYTimes/gizmo/config"
 	"github.com/NYTimes/gizmo/server"
 	"github.com/clawio/authentication/service"
 )
 
 func main() {
+	flag.Parse()
 	var cfg *service.Config
-	config.LoadJSONFile("./config.json", &cfg)
+	config.LoadJSONFile(*config.ConfigLocationCLI, &cfg)
 
-	server.Init("Authentication Service", cfg.Server)
+	server.Init("authentication-service", cfg.Server)
 	svc, err := service.New(cfg)
 	if err != nil {
 		server.Log.Fatal("unable to create service: ", err)

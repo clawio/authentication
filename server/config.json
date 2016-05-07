@@ -9,7 +9,9 @@
 		"HealthCheckPath": "/health.txt"
 	},
 	"General": {
-		"BaseURL": "/api"
+		"BaseURL": "/api/auth/",
+		"JWTKey": "secret",
+		"JWTSigningMethod": "HS256"
 	}, 
 	"AuthenticationController": {
 		"Type": "memory",
