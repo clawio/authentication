@@ -1,6 +1,8 @@
 package lib
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/clawio/entities"
@@ -19,7 +21,7 @@ func Test(t *testing.T) {
 	suite.Run(t, new(TestSuite))
 }
 func (suite *TestSuite) SetupTest() {
-	authenticator := NewAuthenticator("", "")
+	authenticator := NewAuthenticator("secret", "HS256")
 	suite.authenticator = authenticator
 }
 
@@ -82,4 +84,62 @@ func (suite *TestSuite) TestgetUserFromRawToken_withBadDisplayName() {
 	jwtToken.Claims["display_name"] = 0
 	_, err = suite.authenticator.getUserFromRawToken(jwtToken)
 	require.NotNil(suite.T(), err)
+}
+
+func (suite *TestSuite) TestgetTokenFromHeader() {
+	r, err := http.NewRequest("GET", "/", nil)
+	require.Nil(suite.T(), err)
+	r.Header.Set("Authorization", "Bearer xxx")
+	require.Equal(suite.T(), "xxx", suite.authenticator.getTokenFromHeader(r))
+}
+func (suite *TestSuite) TestgetTokenFromHeader_withNoBearer() {
+	r, err := http.NewRequest("GET", "/", nil)
+	require.Nil(suite.T(), err)
+	r.Header.Set("Authorization", "Basic xxx")
+	require.Equal(suite.T(), "", suite.authenticator.getTokenFromHeader(r))
+}
+func (suite *TestSuite) TestgetTokenFromQuery() {
+	r, err := http.NewRequest("GET", "/", nil)
+	require.Nil(suite.T(), err)
+	values := r.URL.Query()
+	values.Set("access_token", "xxx")
+	r.URL.RawQuery = values.Encode()
+	require.Equal(suite.T(), "xxx", suite.authenticator.getTokenFromQuery(r))
+}
+func (suite *TestSuite) TestgetTokenFromRequest_withHeader() {
+	r, err := http.NewRequest("GET", "/", nil)
+	require.Nil(suite.T(), err)
+	r.Header.Set("Authorization", "Bearer xxx")
+	require.Equal(suite.T(), "xxx", suite.authenticator.getTokenFromRequest(r))
+}
+func (suite *TestSuite) TestgetTokenFromRequest_withQuery() {
+	r, err := http.NewRequest("GET", "/", nil)
+	require.Nil(suite.T(), err)
+	values := r.URL.Query()
+	values.Set("access_token", "xxx")
+	r.URL.RawQuery = values.Encode()
+	require.Equal(suite.T(), "xxx", suite.authenticator.getTokenFromRequest(r))
+}
+func (suite *TestSuite) TestJWTMiddleware() {
+	token, err := suite.authenticator.CreateToken(user)
+	require.Nil(suite.T(), err)
+	r, err := http.NewRequest("GET", "", nil)
+	r.Header.Set("Authorization", "Bearer "+token)
+	require.Nil(suite.T(), err)
+	w := httptest.NewRecorder()
+	suite.middleware(w, r)
+	require.Equal(suite.T(), http.StatusOK, w.Code)
+}
+func (suite *TestSuite) TestJWTMiddleware_with401() {
+	r, err := http.NewRequest("GET", "", nil)
+	require.Nil(suite.T(), err)
+	w := httptest.NewRecorder()
+	suite.middleware(w, r)
+	require.Equal(suite.T(), http.StatusUnauthorized, w.Code)
+}
+func (suite *TestSuite) middleware(w *httptest.ResponseRecorder, r *http.Request) {
+	suite.authenticator.JWTHandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})).ServeHTTP(w, r)
+
 }

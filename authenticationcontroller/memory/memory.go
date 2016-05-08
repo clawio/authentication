@@ -16,8 +16,8 @@ type User struct {
 // Options  holds the configuration
 // parameters used by the MemoryAuthenticationController.
 type Options struct {
-	Users                    []*User
-	JWTKey, JWTSigningMethod string
+	Users         []*User
+	Authenticator *lib.Authenticator
 }
 
 // New returns an AuthenticationControler that
@@ -25,7 +25,7 @@ type Options struct {
 func New(opts *Options) authenticationcontroller.AuthenticationController {
 	return &controller{
 		users:         opts.Users,
-		authenticator: lib.NewAuthenticator(opts.JWTKey, opts.JWTSigningMethod),
+		authenticator: opts.Authenticator,
 	}
 }
 

@@ -56,11 +56,9 @@ func (suite *TestSuite) SetupTest() {
 
 func (suite *TestSuite) TestNew_withSimple() {
 	authCfg := &AuthenticationControllerConfig{
-		Type:                   "simple",
-		SimpleDriver:           "sqlite3",
-		SimpleDSN:              "/tmp/userstore.db",
-		SimpleJWTKey:           "secret",
-		SimpleJWTSigningMethod: "HS256",
+		Type:         "simple",
+		SimpleDriver: "sqlite3",
+		SimpleDSN:    "/tmp/userstore.db",
 	}
 	cfg := &Config{
 		General:                  &GeneralConfig{},
@@ -113,11 +111,9 @@ func (suite *TestSuite) TestNew_withNilAuthenticationControllerConfig() {
 }
 func (suite *TestSuite) TestNew_withNilWithBadDSN() {
 	authCfg := &AuthenticationControllerConfig{
-		Type:                   "simple",
-		SimpleDriver:           "sqlite3",
-		SimpleDSN:              "/this/does/not/exists/userstore.db",
-		SimpleJWTKey:           "secret",
-		SimpleJWTSigningMethod: "HS256",
+		Type:         "simple",
+		SimpleDriver: "sqlite3",
+		SimpleDSN:    "/this/does/not/exists/userstore.db",
 	}
 	cfg := &Config{
 		Server: nil,

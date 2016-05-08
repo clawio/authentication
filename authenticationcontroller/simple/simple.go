@@ -19,8 +19,8 @@ type controller struct {
 // Options  holds the configuration
 // parameters used by the controller.
 type Options struct {
-	Driver, DSN              string
-	JWTKey, JWTSigningMethod string
+	Driver, DSN   string
+	Authenticator *lib.Authenticator
 }
 
 // New returns an AuthenticationControler that uses a SQL database for handling
@@ -39,7 +39,7 @@ func New(opts *Options) (authenticationcontroller.AuthenticationController, erro
 		driver:        opts.Driver,
 		dsn:           opts.DSN,
 		db:            db,
-		authenticator: lib.NewAuthenticator(opts.JWTKey, opts.JWTSigningMethod),
+		authenticator: opts.Authenticator,
 	}, nil
 }
 

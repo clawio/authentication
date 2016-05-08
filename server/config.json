@@ -18,11 +18,7 @@
 
 		"SimpleDriver": "sqlite3",
 		"SimpleDSN": "/tmp/userstore.db",
-		"SimpleJWTKey": "secret",
-		"SimpleJWTSigningMethod": "HS256",
 
-		"MemoryJWTKey": "secret",
-		"MemoryJWTSigningKey": "HS256",
 		"MemoryUsers": [
 			{"username": "test", "password":"test", "email": "test@test.com", "display_name":"Testing User"}
 		]

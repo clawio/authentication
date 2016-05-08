@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/clawio/authentication/authenticationcontroller"
+	"github.com/clawio/authentication/lib"
 	"github.com/clawio/entities"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -25,9 +26,8 @@ func Test(t *testing.T) {
 }
 func (suite *TestSuite) SetupTest() {
 	opts := &Options{
-		Users:            users,
-		JWTKey:           "secret",
-		JWTSigningMethod: "HS256",
+		Users:         users,
+		Authenticator: lib.NewAuthenticator("secret", "HS256"),
 	}
 	authenticationController := New(opts)
 	require.NotNil(suite.T(), authenticationController)
@@ -37,9 +37,8 @@ func (suite *TestSuite) SetupTest() {
 
 func (suite *TestSuite) TestNew() {
 	opts := &Options{
-		Users:            users,
-		JWTKey:           "secret",
-		JWTSigningMethod: "HS256",
+		Users:         users,
+		Authenticator: lib.NewAuthenticator("secret", "HS256"),
 	}
 	c := New(opts)
 	require.NotNil(suite.T(), c)

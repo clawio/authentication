@@ -8,6 +8,7 @@ import (
 	"github.com/clawio/authentication/authenticationcontroller"
 	"github.com/clawio/authentication/authenticationcontroller/memory"
 	"github.com/clawio/authentication/authenticationcontroller/simple"
+	"github.com/clawio/authentication/lib"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -31,7 +32,8 @@ type (
 	// GeneralConfig contains configuration parameters
 	// for general parts of the service.
 	GeneralConfig struct {
-		BaseURL string
+		JWTKey, JWTSigningMethod string
+		BaseURL                  string
 	}
 
 	// AuthenticationControllerConfig holds the configuration for
@@ -39,14 +41,10 @@ type (
 	AuthenticationControllerConfig struct {
 		Type string
 
-		SimpleDriver           string
-		SimpleDSN              string
-		SimpleJWTKey           string
-		SimpleJWTSigningMethod string
+		SimpleDriver string
+		SimpleDSN    string
 
-		MemoryJWTKey           string
-		MemoryJWTSigningMethod string
-		MemoryUsers            []*memory.User
+		MemoryUsers []*memory.User
 	}
 )
 
@@ -84,19 +82,19 @@ func New(cfg *Config) (*Service, error) {
 }
 
 func getSimpleAuthenticationController(cfg *Config) (authenticationcontroller.AuthenticationController, error) {
+	authenticator := lib.NewAuthenticator(cfg.General.JWTKey, cfg.General.JWTSigningMethod)
 	opts := &simple.Options{
-		Driver:           cfg.AuthenticationController.SimpleDriver,
-		DSN:              cfg.AuthenticationController.SimpleDSN,
-		JWTKey:           cfg.AuthenticationController.SimpleJWTKey,
-		JWTSigningMethod: cfg.AuthenticationController.SimpleJWTSigningMethod,
+		Driver:        cfg.AuthenticationController.SimpleDriver,
+		DSN:           cfg.AuthenticationController.SimpleDSN,
+		Authenticator: authenticator,
 	}
 	return simple.New(opts)
 }
 func getMemoryAuthenticationController(cfg *Config) authenticationcontroller.AuthenticationController {
+	authenticator := lib.NewAuthenticator(cfg.General.JWTKey, cfg.General.JWTSigningMethod)
 	opts := &memory.Options{
-		Users:            cfg.AuthenticationController.MemoryUsers,
-		JWTKey:           cfg.AuthenticationController.MemoryJWTKey,
-		JWTSigningMethod: cfg.AuthenticationController.MemoryJWTSigningMethod,
+		Users:         cfg.AuthenticationController.MemoryUsers,
+		Authenticator: authenticator,
 	}
 	return memory.New(opts)
 }

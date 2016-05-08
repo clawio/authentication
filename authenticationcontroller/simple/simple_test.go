@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/clawio/authentication/authenticationcontroller"
+	"github.com/clawio/authentication/lib"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -21,10 +22,9 @@ func Test(t *testing.T) {
 }
 func (suite *TestSuite) SetupTest() {
 	opts := &Options{
-		Driver:           "sqlite3",
-		DSN:              "/tmp/userstore.db",
-		JWTKey:           "secret",
-		JWTSigningMethod: "HS256",
+		Driver:        "sqlite3",
+		DSN:           "/tmp/userstore.db",
+		Authenticator: lib.NewAuthenticator("secret", "HS256"),
 	}
 	authenticationController, err := New(opts)
 	require.Nil(suite.T(), err)
@@ -37,20 +37,18 @@ func (suite *TestSuite) TeardownTest() {
 }
 func (suite *TestSuite) TestNew() {
 	opts := &Options{
-		Driver:           "sqlite3",
-		DSN:              "/tmp/userstore.db",
-		JWTKey:           "secret",
-		JWTSigningMethod: "HS256",
+		Driver:        "sqlite3",
+		DSN:           "/tmp/userstore.db",
+		Authenticator: lib.NewAuthenticator("secret", "HS256"),
 	}
 	_, err := New(opts)
 	require.Nil(suite.T(), err)
 }
 func (suite *TestSuite) TestNew_withBadDriver() {
 	opts := &Options{
-		Driver:           "thisnotexists",
-		DSN:              "/tmp/userstore.db",
-		JWTKey:           "secret",
-		JWTSigningMethod: "HS256",
+		Driver:        "thisnotexists",
+		DSN:           "/tmp/userstore.db",
+		Authenticator: lib.NewAuthenticator("secret", "HS256"),
 	}
 	_, err := New(opts)
 	require.NotNil(suite.T(), err)
