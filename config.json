@@ -2,8 +2,8 @@
 	"Server": {
 		"ServerType": "json",
 		"HTTPPort": 58001,
-		"HTTPAccessLog": "./http-access.log",
-		"Log": "./app.log",
+		"HTTPAccessLog": "/var/log/clawio/authentication-http-access.log",
+		"Log": "/var/log/clawio/authentication-app.log",
 		"EnablePProf": true,
 		"HealthCheckType": "simple",
 		"HealthCheckPath": "/health.txt"

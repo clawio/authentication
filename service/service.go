@@ -10,6 +10,7 @@ import (
 	"github.com/clawio/authentication/authenticationcontroller/simple"
 	"github.com/clawio/authentication/lib"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/rs/cors"
 )
 
 type (
@@ -32,8 +33,8 @@ type (
 	// GeneralConfig contains configuration parameters
 	// for general parts of the service.
 	GeneralConfig struct {
-		JWTKey, JWTSigningMethod string
 		BaseURL                  string
+		JWTKey, JWTSigningMethod string
 	}
 
 	// AuthenticationControllerConfig holds the configuration for
@@ -107,7 +108,7 @@ func (s *Service) Prefix() string {
 
 // Middleware provides an http.Handler hook wrapped around all requests.
 func (s *Service) Middleware(h http.Handler) http.Handler {
-	return h
+	return cors.Default().Handler(h)
 }
 
 // Endpoints is a listing of all endpoints available in the MixedService.
@@ -119,7 +120,8 @@ func (s *Service) Endpoints() map[string]map[string]http.HandlerFunc {
 			},
 		},
 		"/token": {
-			"POST": prometheus.InstrumentHandlerFunc("/token", s.Token),
+			"POST":    prometheus.InstrumentHandlerFunc("/token", s.Token),
+			"OPTIONS": prometheus.InstrumentHandlerFunc("/token (OPTIONS)", s.Token),
 		},
 	}
 }
