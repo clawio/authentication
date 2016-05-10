@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/clawio/authentication/branch/master/graph/badge.svg)](https://codecov.io/gh/clawio/authentication)
 
 
+
 This repository contains the ClawIO Authentication Service.
 
 This service authenticate users for using other services that require the user to be authenticated.
